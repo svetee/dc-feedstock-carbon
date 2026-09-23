@@ -1,4 +1,4 @@
-feedstock,fate,claim_holder,electricity_kg_per_mwh,removal_kg_per_mwh,biogenic_outside_scopes
+feedstock,end_use,claim_holder,electricity_kg_per_mwh,removal_kg_per_mwh,biogenic_outside_scopes
 Grey methanol (natural gas),merchant,power,708,0,0
 Grey methanol (natural gas),stored,power,251,0,0
 Grey methanol (natural gas),stored,CO2 buyer,708,0,0

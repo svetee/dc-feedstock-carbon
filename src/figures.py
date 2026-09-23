@@ -64,7 +64,7 @@ def fig_plant():
         flows = [(0, U0, U1, WTT * sc), (0, C0, E1, esc * sc), (0, C0, K1, cap * sc), (1, U1, counted, WTT * sc), (1, E1, counted, esc * sc), (1, K1, counted if sold else other, cap * sc)]
         colors = {(0, U0): TAN, (0, C0): BROWN, (1, U1): TAN, (1, E1): ORANGE, (1, K1): COPPER, (2, counted): ORANGE, (2, other): COPPER}
         sankey(ax, [s0, s1, s2], flows, colors, x_gap=1.0)
-        ax.set_title(("B.  Captured CO₂ sold: fate not durable" if sold else "A.  Captured CO₂ stored, power keeps the claim").replace("₂", "$_2$"), fontsize=9, loc="left", color=BROWN)
+        ax.set_title(("B.  Captured CO₂ sold: end use not durable" if sold else "A.  Captured CO₂ stored, power keeps the claim").replace("₂", "$_2$"), fontsize=9, loc="left", color=BROWN)
         if sold: ax.text(1.0 + 0.03, 0.02, "Rule B: a tonne that is\nre-released counts as emitted", fontsize=7.2, color=ORANGE, ha="left", va="bottom")
     fig.savefig(f"{OUT}/fig_plant_sankey.png", dpi=170); plt.close(fig)
 
@@ -134,7 +134,7 @@ def fig_custody():
 def fig_ledger_rules():
     fig, (ax, ax2) = plt.subplots(1, 2, figsize=(9.2, 3.9), gridspec_kw={"width_ratios": [1.25, 1]})
     ax.set_xlim(0, 10); ax.set_ylim(0, 6.2); ax.axis("off")
-    inputs = [("Electricity\nMWh, hourly certificate", 5.1), ("Fuel\ngas, RNG, methanol, H₂", 3.7), ("Captured CO₂\ntonne, fate", 2.3), ("Water\nm³, consumptive", 0.9)]
+    inputs = [("Electricity\nMWh, hourly certificate", 5.1), ("Fuel\ngas, RNG, methanol, H₂", 3.7), ("Captured CO₂\ntonne, end use", 2.3), ("Water\nm³, consumptive", 0.9)]
     for t, yy in inputs: box(ax, 0.2, yy, 2.6, 1.0, t, fs=7.2)
     box(ax, 3.6, 1.6, 2.7, 3.4, "Ledger record\n\nserial\nfactor (kgCO₂e or litres)\norigin\ncustody model\nfate\nclaim flag\nparent serial", fc="white", fs=7.6)
     claims = [("Ratepayer\nupgrades + price effects", 5.1), ("Electricity carbon\nScope 2, hourly, deliverable", 3.7), ("Fuel carbon\nScope 1 / 3, AMI rule", 2.3), ("Water\nstate reporting", 0.9)]

@@ -10,7 +10,7 @@ the same at every step:
 
 This module implements that rule and the four claim types a hyperscale portfolio makes,
 and refuses the two things that break chains in practice: a serial claimed twice, and a
-claim asserted on an attribute whose fate does not support it.
+claim asserted on an attribute whose end use does not support it.
 
 Custody models
   mass_balance   attribute travels with the physical unit through certified sites; books
@@ -34,7 +34,7 @@ from typing import Literal, Optional
 import hashlib, itertools
 
 Custody = Literal["mass_balance", "book_and_claim"]
-Fate = Literal["stored", "mineralised", "merchant", "efuel", "vented", "consumed"]
+EndUse = Literal["stored", "mineralised", "merchant", "efuel", "vented", "consumed"]
 Claim = Literal["ratepayer", "electricity", "fuel", "water", "removal"]
 
 DURABLE = {"stored", "mineralised"}
@@ -51,7 +51,7 @@ class Attribute:
     custody: Custody
     holder: str
     parent: Optional[str] = None # serial cancelled to create this one
-    fate: Optional[Fate] = None
+    end_use: Optional[EndUse] = None
     hour: Optional[str] = None   # ISO hour for electricity (hourly matching)
     region: Optional[str] = None # deliverability region
     cancelled: bool = False
@@ -85,15 +85,15 @@ class Ledger:
                           factor=new_factor if new_factor is not None else p.factor, origin=p.origin,
                           custody=custody or p.custody, holder=to, parent=p.serial, hour=p.hour, region=p.region)
 
-    def set_fate(self, serial: str, fate: Fate):
-        self.records[serial].fate = fate
+    def set_end_use(self, serial: str, end_use: EndUse):
+        self.records[serial].end_use = end_use
 
     def claim(self, serial: str, kind: Claim, hour: str | None = None, region: str | None = None) -> Attribute:
         a = self.records[serial]
         if a.cancelled: raise DoubleClaim(f"{serial} was cancelled on handover; the claim lives on its successor")
         if a.claimed_as: raise DoubleClaim(f"{serial} already retired as a {a.claimed_as} claim")
-        if kind == "removal" and (a.origin != "biogenic" or a.fate not in DURABLE):
-            raise UnsupportedClaim("removal needs biogenic carbon and a durable fate")
+        if kind == "removal" and (a.origin != "biogenic" or a.end_use not in DURABLE):
+            raise UnsupportedClaim("removal needs biogenic carbon and a durable end use")
         if kind == "electricity" and a.custody == "book_and_claim":
             if hour and a.hour and hour != a.hour: raise UnsupportedClaim(f"hourly rule: certificate hour {a.hour} != consumption hour {hour}")
             if region and a.region and region != a.region: raise UnsupportedClaim(f"deliverability: {a.region} != {region}")
@@ -107,7 +107,7 @@ class Ledger:
 
     def audit(self, serial: str) -> str:
         return "\n".join(f"  {'[cancelled]' if a.cancelled else '[live]     '} {a.serial:26} {a.holder:22} {a.quantity:9.1f} {a.unit:7} factor {a.factor:7.1f}  {a.origin:9} {a.custody:14}"
-                         f"{(' fate=' + a.fate) if a.fate else ''}{(' CLAIMED:' + a.claimed_as) if a.claimed_as else ''}" for a in self.chain(serial))
+                         f"{(' end_use=' + a.end_use) if a.end_use else ''}{(' CLAIMED:' + a.claimed_as) if a.claimed_as else ''}" for a in self.chain(serial))
 
 
 if __name__ == "__main__":
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     except BrokenChain as e:
         print("\nRejected:", e)
     # 6. Captured CO2 from fossil methanol offered as a removal credit.
-    co2 = L.issue("CO2", unit="t_CO2", quantity=130.0, factor=1000.0, origin="fossil", custody="mass_balance", holder="Plant"); L.set_fate(co2.serial, "stored")
+    co2 = L.issue("CO2", unit="t_CO2", quantity=130.0, factor=1000.0, origin="fossil", custody="mass_balance", holder="Plant"); L.set_end_use(co2.serial, "stored")
     try:
         L.claim(co2.serial, "removal")
     except UnsupportedClaim as e:

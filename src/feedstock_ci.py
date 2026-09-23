@@ -5,13 +5,13 @@ the hydrogen runs a fuel cell. The electricity's carbon intensity (kgCO2e per MW
 well-to-plug) depends on three things the power contract has to state:
 
   1. where the methanol's carbon came from (fossil, biogenic, or a closed loop),
-  2. where the captured CO2 goes (its "fate"),
+  2. where the captured CO2 goes (its end use),
   3. who holds the claim on the captured tonne (the power buyer or the CO2 buyer).
 
 Rules implemented
   A  Exclusivity: a captured tonne is claimed once. The electricity keeps the claim
      only if the CO2 buyer has not taken it in contract.
-  B  Fate follows the tonne: only durable fates (geological storage, mineralisation)
+  B  The claim follows the end use: only durable end uses (geological storage, mineralisation)
      keep carbon out of the air. Merchant use, fuel synthesis and venting do not.
   C  Biogenic CO2 is reported separately. A removal is a separate product; it is never
      netted into the buyer's Scope 2 figure (no negative electricity).
@@ -68,8 +68,8 @@ FEEDSTOCKS = [
               "IEA (2021) low end for renewable e-methanol; loop losses ~5 % per pass added below"),
 ]
 
-# Fate: (durable, description)
-FATES = {
+# End use of the captured CO2: (durable, description)
+END_USES = {
     "vented":     (False, "released to air"),
     "merchant":   (False, "sold for food, greenhouse, dry ice (short cycle)"),
     "efuel":      (False, "sold as e-fuel feedstock, burned later elsewhere"),
@@ -78,7 +78,7 @@ FATES = {
 }
 
 
-def electricity_ci(fs: Feedstock, plant: Plant, fate: str, power_holds_claim: bool, loop: bool = False):
+def electricity_ci(fs: Feedstock, plant: Plant, end_use: str, power_holds_claim: bool, loop: bool = False):
     """Return dict with kgCO2e/MWh for the buyer's electricity and the separate removal line.
 
     Formula (per tonne of methanol, then divided by MWh produced):
@@ -93,7 +93,7 @@ def electricity_ci(fs: Feedstock, plant: Plant, fate: str, power_holds_claim: bo
         removal_kg     = captured if durable and power_holds_claim else 0   [separate product]
       loop case: WtT already includes capture energy; add 5 % make-up per pass on the WtT.
     """
-    durable, _ = FATES[fate]
+    durable, _ = END_USES[end_use]
     comb = CO2_PER_T_MEOH_T * 1000.0
     captured = comb * plant.capture_rate
     escaped = comb * (1 - plant.capture_rate)
@@ -112,12 +112,12 @@ def electricity_ci(fs: Feedstock, plant: Plant, fate: str, power_holds_claim: bo
 
 
 # ----------------------------------------------------------------------------
-# The captured tonne as a product: value per MWh of electricity by fate.
+# The captured tonne as a product: value per MWh of electricity by end use.
 # Prices are illustrative ranges with the source next to each; a real site uses its
 # offtake contract. Value and claim are separate: Rule A decides who holds the claim.
 # ----------------------------------------------------------------------------
 COPRODUCT = {
-    # fate: (low, high USD per t CO2 received by the plant; negative = plant pays), durable, source
+    # end use: (low, high USD per t CO2 received by the plant; negative = plant pays), durable, source
     "merchant":     (100.0, 250.0, False, "Merchant liquid CO2, food/industrial grade, Asian and US spot ranges; IEA 'Putting CO2 to Use' (2019) for market size"),
     "efuel":        (50.0, 150.0, False, "Biogenic or point-source CO2 offered to e-fuel producers; developer term sheets 2024-26, illustrative"),
     "mineralised":  (0.0, 60.0, True, "Carbonated aggregate and concrete curing: CO2 taken at or near zero; value comes from the durable-removal claim if biogenic (see below)"),
@@ -126,17 +126,40 @@ COPRODUCT = {
 REMOVAL_CREDIT = (100.0, 300.0)   # USD per t, durable removal (mineralisation) with biogenic carbon; 2025 CDR offtake ranges, illustrative
 
 
+# Turquoise hydrogen: methane pyrolysis, CH4 -> 2 H2 + C(s). The carbon leaves as a solid
+# product (carbon black, graphite, nanocarbons) and never becomes CO2 at the plant.
+H2_LHV_MWH_PER_T = 33.33          # MWh_th per t H2
+C_PER_T_H2 = 12.011 * 1 / (2 * 2.016)   # t solid carbon per t H2 from CH4 -> 2H2 + C = 2.98
+CARBON_PRODUCT = {  # USD per t solid carbon, illustrative ranges with source
+    "carbon black grade":   (900.0, 1800.0, "Furnace carbon black price ranges 2023-25, industry price reports; displaces furnace black at ~2.4 tCO2e per t (IEA/industry LCAs)"),
+    "graphite / nanocarbon":(3000.0, 10000.0, "Battery-grade graphite and CNT/graphene ranges vary by grade; illustrative"),
+}
+CARBON_BLACK_DISPLACED_TCO2_PER_T = 2.4
+
+
+def turquoise_value(electrical_efficiency_lhv: float = 0.55):
+    """Solid carbon per MWh of electricity from pyrolysis hydrogen, its product value, and the
+    emissions displaced when it substitutes furnace carbon black.
+        t_C_per_MWh = C_PER_T_H2 / (H2_LHV_MWH_PER_T * efficiency)
+    """
+    t_c = C_PER_T_H2 / (H2_LHV_MWH_PER_T * electrical_efficiency_lhv)
+    out = {"t_c_per_mwh": t_c, "displaced_tco2_per_mwh": t_c * CARBON_BLACK_DISPLACED_TCO2_PER_T}
+    for k, (lo, hi, src) in CARBON_PRODUCT.items():
+        out[k] = (lo * t_c, hi * t_c)
+    return out
+
+
 def coproduct_value(plant: Plant, fs: Feedstock):
-    """USD per MWh of electricity from selling the captured CO2 by fate, plus the separate
-    removal-credit value where the fate is durable and the carbon biogenic.
+    """USD per MWh of electricity from selling the captured CO2 by end use, plus the separate
+    removal-credit value where the end use is durable and the carbon biogenic.
         t_per_mwh = CO2_PER_T_MEOH_T * capture_rate / mwh_per_t_meoh
         value_per_mwh = price_per_t * t_per_mwh
     """
     t_per_mwh = CO2_PER_T_MEOH_T * plant.capture_rate / plant.mwh_per_t_meoh
     rows = []
-    for fate, (lo, hi, durable, src) in COPRODUCT.items():
+    for end_use, (lo, hi, durable, src) in COPRODUCT.items():
         credit = (REMOVAL_CREDIT[0] * t_per_mwh, REMOVAL_CREDIT[1] * t_per_mwh) if (durable and fs.biogenic) else (0.0, 0.0)
-        rows.append(dict(fate=fate, t_co2_per_mwh=t_per_mwh, product_usd_per_mwh=(lo * t_per_mwh, hi * t_per_mwh), removal_usd_per_mwh=credit,
+        rows.append(dict(end_use=end_use, t_co2_per_mwh=t_per_mwh, product_usd_per_mwh=(lo * t_per_mwh, hi * t_per_mwh), removal_usd_per_mwh=credit,
                          durable=durable, power_claim_if_sold=(not durable) or False, source=src))
     return rows
 
@@ -160,12 +183,12 @@ def main():
         (FEEDSTOCKS[1], "stored",   False, False),
         (FEEDSTOCKS[2], "efuel",    True,  True),
     ]
-    print(f"{'Feedstock':52} {'CO2 fate':12} {'Claim':8} {'Elec kg/MWh':>12} {'Removal':>9} {'Biogenic*':>10}")
-    for fs, fate, claim, loop in cases:
-        r = electricity_ci(fs, plant, fate, claim, loop)
+    print(f"{'Feedstock':52} {'CO2 end use':12} {'Claim':8} {'Elec kg/MWh':>12} {'Removal':>9} {'Biogenic*':>10}")
+    for fs, end_use, claim, loop in cases:
+        r = electricity_ci(fs, plant, end_use, claim, loop)
         who = "power" if claim else "CO2 buyer"
-        print(f"{fs.name:52} {fate:12} {who:8} {r['electricity']:12.0f} {r['removal']:9.0f} {r['biogenic_outside_scopes']:10.0f}")
-        rows.append(dict(feedstock=fs.name, fate=fate, claim_holder=who, electricity_kg_per_mwh=round(r['electricity']),
+        print(f"{fs.name:52} {end_use:12} {who:8} {r['electricity']:12.0f} {r['removal']:9.0f} {r['biogenic_outside_scopes']:10.0f}")
+        rows.append(dict(feedstock=fs.name, end_use=end_use, claim_holder=who, electricity_kg_per_mwh=round(r['electricity']),
                          removal_kg_per_mwh=round(r['removal']), biogenic_outside_scopes=round(r['biogenic_outside_scopes'])))
     print("* biogenic CO2 reported outside the scopes (GHGP Corporate Standard, App. B); not netted into the electricity figure.")
     print(f"\nPlant: {plant.mwh_per_t_meoh:.2f} MWh/t methanol at {plant.electrical_efficiency_lhv:.0%} LHV, "
@@ -180,7 +203,10 @@ def main():
         print(f"  {fs.name}:  {CO2_PER_T_MEOH_T * plant.capture_rate / plant.mwh_per_t_meoh:.2f} t CO2 per MWh")
         for r in coproduct_value(plant, fs):
             lo, hi = r["product_usd_per_mwh"]; clo, chi = r["removal_usd_per_mwh"]
-            print(f"    {r['fate']:12} product {lo:6.0f} to {hi:5.0f} $/MWh   removal credit {clo:4.0f} to {chi:4.0f} $/MWh   durable={r['durable']}")
+            print(f"    {r['end_use']:12} product {lo:6.0f} to {hi:5.0f} $/MWh   removal credit {clo:4.0f} to {chi:4.0f} $/MWh   durable={r['durable']}")
+    tq = turquoise_value(plant.electrical_efficiency_lhv)
+    print(f"\nTurquoise hydrogen (methane pyrolysis), power at {plant.electrical_efficiency_lhv:.0%} LHV: {tq['t_c_per_mwh']:.3f} t solid carbon per MWh; "
+          f"carbon-black grade {tq['carbon black grade'][0]:.0f} to {tq['carbon black grade'][1]:.0f} $/MWh; displaces {tq['displaced_tco2_per_mwh']:.2f} tCO2e per MWh of furnace-black production.")
 
 
 if __name__ == "__main__":
