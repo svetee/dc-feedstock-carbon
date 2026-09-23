@@ -3,7 +3,7 @@
 Working paper, code and a first pilot on the question behind the AI build-out: **when compute load arrives before the generation to serve it, who carries the cost, and can the pledges to carry it be measured?**
 
 - **Paper:** [`article/low-carbon-feedstock-for-data-centres.md`](article/low-carbon-feedstock-for-data-centres.md)
-- **Site-level model:** [`src/feedstock_ci.py`](src/feedstock_ci.py). Carbon intensity of electricity from a methanol-to-power unit with CO₂ capture as a function of feedstock origin, CO₂ fate and claim ownership. Implements four accounting rules (claim exclusivity, fate follows the tonne, biogenic reported separately, measure the capture rate). Stoichiometry plus stated, sourced inputs; nothing proprietary.
+- **Site-level model:** [`src/feedstock_ci.py`](src/feedstock_ci.py). Carbon intensity of electricity from a methanol-to-power unit with CO₂ capture as a function of feedstock origin, CO₂ fate and claim ownership, and `coproduct_value()`: what the captured tonne is worth per MWh by fate (merchant, e-fuel, mineralised, stored) with the claim kept separate from the price. Implements four accounting rules (claim exclusivity, fate follows the tonne, biogenic reported separately, measure the capture rate). Stoichiometry plus stated, sourced inputs; nothing proprietary.
 - **Attribute ledger:** [`src/attribute_ledger.py`](src/attribute_ledger.py). The portfolio-level custody model from section 3 of the paper: one record from meter to claim (serial, factor, origin, custody model, fate, claim), the cancel-and-reissue rule at every handover, four claim types, and rejection of double claims, unsupported removal claims and off-hour certificates. Worked chain: bio-methanol certified in one country, converted to power in another, retired as an hourly-matched electricity claim.
 - **Figures:** [`src/figures.py`](src/figures.py). Two Sankeys (carbon flow per tonne of fuel under two CO₂ fates; where a 100 MW load's energy goes under hourly matching in PJM), the custody-chain flowchart, and the portfolio ledger with the 2025–2028 rule timeline. Pure matplotlib.
 - **Grid pilot:** [`src/hourly_match.py`](src/hourly_match.py). A flat 100 MW load in six US balancing authorities, July–December 2025, with a solar PPA sized to 100 % of annual energy. Emissions under location-based, annual-matched and hourly-matched accounting from EIA-930 hourly data.
@@ -22,6 +22,10 @@ A solar PPA covering 100 % of a data centre's annual energy covers 42–48 % of 
 | CAISO | 212 | 93,100 | 62,600 | 44 % |
 | SPP | 421 | 185,900 | 90,800 | 48 % |
 | Southern | 374 | 165,200 | 99,300 | 42 % |
+
+## The constructive thesis
+
+Emerging technologies with a real industrial application, pre-combustion capture with a saleable CO₂ stream, methane pyrolysis to solid carbon, mineralisation into building materials, turn a disposal problem into a feedstock and can pay for decarbonising the firm power a data centre needs in the hours a solar contract does not cover. At illustrative prices the captured CO₂ is worth 45–115 $/MWh of the electricity that produced it. The accounting rules (one claim per tonne; only durable fates earn a claim) are what keep that value honest. Section 3 of the paper.
 
 ## Proposed research
 

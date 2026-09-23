@@ -6,11 +6,12 @@
 
 Frontier AI is being built on power that does not yet exist. Data centres arrive in two to three years; the generation and transmission to serve them take five to ten. In the gap, the load is served by whatever the grid already has, and the bill for upgrades lands on a rate base that did not ask for them. The largest AI developers have responded with pledges: to pay for grid upgrades, to bring new generation online, to cover the price effects their load causes, to run on clean power [1, 2]. None of the pledges I have read names a methodology, a data source or an auditor. That is not a criticism of the pledges. It is the gap this paper is about.
 
-I make three arguments, drawn from fourteen years in carbon accounting, the last two spent on fuels and on-site power for data centres.
+I make four arguments, drawn from fourteen years in carbon accounting, the last two spent on fuels and on-site power for data centres.
 
 1. **At the site, the carbon intensity of "low-carbon" power is a contract term, not a property of the technology.** A worked case with a methanol-to-power unit and CO₂ capture shows the same plant producing electricity at 250 or 700 kgCO₂e/MWh depending on three clauses: where the carbon came from, where the captured CO₂ goes, and who holds the claim on it.
-2. **Across a portfolio, the accounting problem is a chain-of-custody problem.** Fuel, electricity and CO₂ attributes cross borders, registries and standards. The chain breaks at the handovers, and the fix is one record from meter to claim, not a better spreadsheet.
-3. **The rules that will decide who pays are being written now, without the measurement to apply them.** A pilot on public hourly grid data shows that a solar PPA sized to 100 % of a data centre's annual energy leaves 49 to 67 % of its location-based emissions unmatched hour by hour, depending on what serves the dark hours in each region. Under the current standard that load reports zero. Under the standard expected in 2027 it does not. The difference is the size of the policy question.
+2. **The captured tonne is a product, and that changes the economics of firm low-carbon power for data centres.** At illustrative prices, CO₂ sold as an industrial feedstock is worth 45 to 115 dollars per MWh of the electricity that produced it, against a power cost premium of the same order. Emerging technologies that turn a waste stream into a feedstock, gas or solid, can pay for the decarbonisation of firm power. The accounting rules in argument 1 are what keep that value honest: the tonne is priced once and the claim is placed once.
+3. **Across a portfolio, the accounting problem is a chain-of-custody problem.** Fuel, electricity and CO₂ attributes cross borders, registries and standards. The chain breaks at the handovers, and the fix is one record from meter to claim, not a better spreadsheet.
+4. **The rules that will decide who pays are being written now, without the measurement to apply them.** A pilot on public hourly grid data shows that a solar PPA sized to 100 % of a data centre's annual energy leaves 49 to 67 % of its location-based emissions unmatched hour by hour, depending on what serves the dark hours in each region. Under the current standard that load reports zero. Under the standard expected in 2027 it does not. The difference is the size of the policy question.
 
 The paper ends with the research I propose to do next: measuring the societal cost of compute load, and testing which market mechanisms make AI infrastructure fund grid resilience rather than draw on it.
 
@@ -28,7 +29,7 @@ Three facts frame the problem.
 
 ## 2. At the site: carbon intensity is a contract term
 
-I use methanol-to-power as the worked case because it is where the contract-term effect is largest and fully visible; the same rules apply to renewable natural gas, certified gas and gas with capture. Consider a data centre that wants firm, on-site, low-carbon power and chooses a liquid fuel: methanol, reformed on site, with the CO₂ captured before combustion and the hydrogen run through a fuel cell. Several such units are in development in Asia, including one I have advised on the accounting for. The technology is three known pieces: a reformer that traps CO₂ in solution, a fuel cell, and a heat loop. The engineering question is capture rate and parasitic load; independent technical reviews of comparable systems expect 95 to 99 % capture rather than the 100 % that developers' models tend to assume. The accounting question is harder.
+I use methanol-to-power as the worked case because it is where the contract-term effect is largest and fully visible; the same rules apply to renewable natural gas, certified gas and gas with capture. Consider a data centre that wants firm, on-site, low-carbon power and chooses a liquid fuel: methanol, reformed on site, with the CO₂ captured before combustion and the hydrogen run through a fuel cell. Several such units are in development in Asia, including one I have advised on the accounting for. The technology is three known pieces: a reformer with pre-combustion capture, a fuel cell, and a heat loop that makes the cell's waste heat do the capture work. The engineering question is capture rate and parasitic load; independent technical reviews of comparable systems expect 95 to 99 % capture rather than the 100 % that developers' models tend to assume. The accounting question is harder.
 
 The electricity's carbon intensity, in kilograms of CO₂e per MWh from well to plug, depends on:
 
@@ -62,7 +63,30 @@ For reference, the published grid emission factor for Singapore, a gas-fired sys
 
 The same logic applies to every low-carbon feedstock now being offered to data centres: certified natural gas, renewable natural gas under book-and-claim, gas with post-combustion capture, hydrogen blends. In each case the carbon intensity the buyer may report depends on custody rules and claim rules more than on the molecule.
 
-## 3. Across the portfolio: custody
+## 3. The captured tonne is a product
+
+Section 2 treated the captured CO₂ as an accounting problem. It is also a revenue line, and for a data centre the two together are what decide whether firm low-carbon power is affordable at all.
+
+The case for on-site low-carbon generation at a data centre is usually lost on cost. Reforming with capture and a fuel cell produces power at a premium over grid supply that, in the developer models I have reviewed, runs from roughly 40 to 120 dollars per MWh depending on fuel price and utilisation; treat the range as illustrative, since it is the comparison that matters here, not the figure. What the cost comparison leaves out is that the same plant produces roughly 0.46 tonnes of pure, pressure-ready CO₂ for every MWh of electricity, and pure CO₂ has buyers. Food and beverage, greenhouses, dry ice, chemicals and e-fuel synthesis all pay for it; carbonated aggregates and concrete curing take it and lock it up; and where the carbon is biogenic and the fate durable, the removal itself is a second product with its own buyers.
+
+Exhibit 4 puts illustrative prices against the tonnage [21]. At a merchant price of 100 to 250 dollars a tonne, the CO₂ is worth 45 to 115 dollars per MWh of the power that produced it, which is the whole of the cost premium. Sold as e-fuel feedstock it is worth 25 to 70. Mineralised into aggregates the gas itself fetches little, but with biogenic carbon the durable-removal claim is worth another 45 to 135 per MWh at 2025 carbon-removal prices. Storage is a cost, 10 to 25 per MWh, and buys only the claim.
+
+| CO₂ fate | Price to the plant, USD/t | Product value, USD/MWh | Durable | Removal claim, USD/MWh (biogenic carbon) | Power's claim if sold |
+|---|---|---|---|---|---|
+| Merchant (food, industrial, greenhouse) | 100 to 250 | 45 to 115 | No | 0 | None: counted as emitted |
+| E-fuel feedstock | 50 to 150 | 25 to 70 | No | 0 | None: counted as emitted |
+| Mineralised (aggregates, concrete) | 0 to 60 | 0 to 25 | Yes | 45 to 135 | Kept, unless the claim is sold with the tonne |
+| Geological storage | −50 to −20 | −25 to −10 | Yes | 45 to 135 | Kept, unless the claim is sold with the tonne |
+
+Two things follow, and they are the constructive half of this paper.
+
+First, **emerging technologies with a real industrial application can pay for decarbonising data-centre power.** The technologies that matter here are not exotic: pre-combustion capture with a saleable CO₂ stream, methane pyrolysis that yields hydrogen and solid carbon instead of CO₂ at all, mineralisation into building materials that a site is going to buy anyway. Each turns what was a disposal problem into a feedstock, gas or solid, and each changes the economics of firm supply in the hours the solar contract does not cover. A data-centre operator who has to buy firm power under an hourly rule, and who has an industrial gas market next door, has a way to fund the firm supply that the rule demands. That is a market mechanism for resilience in the plain sense: a revenue stream that makes the grid-independent, low-carbon option the cheaper one.
+
+Second, **the value and the claim are separable, and the accounting rules are what keep the value honest.** Rule A says the tonne is claimed once. Rule B says only a durable fate earns a claim. A merchant sale is worth 45 to 115 dollars per MWh and earns the power no claim at all, because the carbon is back in the air within months; the buyer of that power reports 708, not 251. A mineralised tonne of biogenic carbon earns both the product revenue and the removal claim, and the contract has to say which party holds the claim before either can be sold. None of this stops the plant being economic. It stops the plant being economic on the strength of a claim it does not hold. The developers I have worked with have tended to price the tonne twice and place the claim nowhere; the fix is a contract term, not a technology.
+
+The research questions in section 6 are about who pays for the residual. This section is the answer I would want the research to test: that the residual can be funded by the product the capture plant makes, and that the rules in section 2 are the difference between that being true and it being a double count.
+
+## 4. Across the portfolio: custody
 
 ![Custody chain from producer to retired claim, and where it breaks](../figures/fig_custody_flow.png)
 
@@ -78,10 +102,10 @@ The design was written for a common situation: a platform with a single large te
 
 - **Four claims, one record.** The ratepayer claim (upgrade costs and price effects), the electricity-carbon claim (Scope 2, soon hourly and deliverable), the fuel-carbon claim (Scope 1 and 3, pending the AMI rule on book-and-claim) and the water claim (state reporting) all draw on the same metered inputs. A separate spreadsheet per claim is how double counting starts.
 - **The record outlives the hardware.** A data centre replaces its GPUs generation by generation; the asset that persists is the record. Embodied carbon and asset accounting belong on the same serial as the operating attributes.
-- **The rules move faster than the build.** Exhibit 5 shows the sequence: Scope 2 consultation, FERC and state tariffs, Dominion GS-5 and Virginia water reporting in 2027, Scope 2 final, the AMI draft and final, the owners' inventory deadlines. A site financed in 2026 will report under rules that are not yet written for most of its life, so the record has to carry the raw hourly data, not a factor computed under today's rule.
+- **The rules move faster than the build.** Exhibit 6 shows the sequence: Scope 2 consultation, FERC and state tariffs, Dominion GS-5 and Virginia water reporting in 2027, Scope 2 final, the AMI draft and final, the owners' inventory deadlines. A site financed in 2026 will report under rules that are not yet written for most of its life, so the record has to carry the raw hourly data, not a factor computed under today's rule.
 ![The portfolio ledger and the rule timeline](../figures/fig_ledger_rules.png) It is complicated to build, because the registries do not talk to each other and the standards are moving. But without it, every one of the pledges above is unauditable, and the net-zero frameworks that infrastructure investors have adopted, which typically require a measured inventory and a Paris-aligned plan within two years of acquisition, cannot be met [16].
 
-## 4. The pilot: reporting or emissions?
+## 5. The pilot: reporting or emissions?
 
 The most consequential of the moving standards is hourly matching, because it changes what a data centre's clean-power procurement is worth. I ran a first test on public data.
 
@@ -102,9 +126,9 @@ The most consequential of the moving standards is hourly matching, because it ch
 
 A solar PPA that covers 100 % of annual energy covers 42 to 48 % of the hours. The residual, 49 % of the location-based figure in SPP and 67 % in CAISO, is what the current standard lets a buyer leave unreported and the proposed standard does not. In MISO that is 114,000 tCO₂ over six months for a single 100 MW site. Where that residual is emitted matters as much as its size: the unmatched hours are served by gas and coal plants in the same region, so the air-quality and water burden of a certificate-backed "zero" lands on the communities near those plants, not on the buyer's report.
 
-**What this does and does not show.** It shows that hourly matching changes reporting by a large, region-dependent amount, and that the residual is served by gas and coal in the hours solar is absent. It does not yet show the consequential effect: whether the load caused those plants to run, what it did to prices, or whether an hourly-matched procurement rule would change what gets built. The residual is a reporting quantity; whether it is an emission the load caused is the first research question below. One more consequence follows from the arithmetic. An hourly rule does not remove the residual; it converts it into demand for firm low-carbon supply, which is exactly the contract-term product of section 2. The custody problem returns at scale.
+**What this does and does not show.** It shows that hourly matching changes reporting by a large, region-dependent amount, and that the residual is served by gas and coal in the hours solar is absent. It does not yet show the consequential effect: whether the load caused those plants to run, what it did to prices, or whether an hourly-matched procurement rule would change what gets built. The residual is a reporting quantity; whether it is an emission the load caused is the first research question below. One more consequence follows from the arithmetic. An hourly rule does not remove the residual; it converts it into demand for firm low-carbon supply, which is exactly the contract-term product of section 2, and the co-product economics of section 3 are what make that supply affordable. The custody problem returns at scale.
 
-## 5. Proposed research: the societal cost of compute, and who pays
+## 6. Proposed research: the societal cost of compute, and who pays
 
 Frame the question as one of societal resilience rather than corporate accounting. The threat here is not the model but its deployment: AI load that raises household bills and erodes grid adequacy is the fastest route to public and regulatory backlash against the build-out itself, and grid reliability is critical infrastructure in its own right. Market mechanisms that make the load fund resilience rather than draw on it are the test case for whether an AI developer's pledges can be verified by anyone outside the developer.
 
@@ -148,3 +172,4 @@ Every input is public: EIA-930, the RTO and utility large-load queues, DELTa, th
 18. U.S. Energy Information Administration, "How much carbon dioxide is produced per kilowatthour of U.S. electricity generation?", Frequently Asked Questions, 2024 data.
 19. Lawrence Berkeley National Laboratory, *Queued Up: 2026 Edition. Characteristics of Power Plants Seeking Transmission Interconnection as of the End of 2025*, June 2026, with project-level data file (May 2026). emp.lbl.gov/queues
 20. Monitoring Analytics (PJM Independent Market Monitor), analysis of the 2025/2026 Base Residual Auction, reported in Utility Dive, "Data centers 'primary reason' for high PJM capacity prices: market monitor," 2025.
+21. International Energy Agency, *Putting CO₂ to Use: Creating Value from Emissions*, Paris, 2019 (CO₂ utilisation markets and price ranges); carbon-removal offtake price ranges from public 2025 purchase disclosures, illustrative.

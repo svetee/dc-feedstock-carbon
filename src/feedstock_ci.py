@@ -43,7 +43,7 @@ MEOH_LHV_MWH_PER_T = 19.9 / 3.6           # 19.9 GJ/t LHV (IEA / Methanol Instit
 class Plant:
     """Conversion plant parameters. Defaults are engineering ranges, not a vendor's numbers."""
     electrical_efficiency_lhv: float = 0.55   # net electric output / fuel LHV. Reforming + SOFC systems: ~0.50-0.60 net.
-    capture_rate: float = 0.95                # share of reformed CO2 captured. DNV-type reviews expect 0.95-0.99, never 1.0.
+    capture_rate: float = 0.95                # share of reformed CO2 captured. Independent technical reviews expect 0.95-0.99, never 1.0.
     parasitic_share: float = 0.06             # share of gross output consumed by capture, compression, liquefaction.
 
     @property
@@ -111,6 +111,36 @@ def electricity_ci(fs: Feedstock, plant: Plant, fate: str, power_holds_claim: bo
     return dict(electricity=elec_kg / mwh, removal=removal_kg / mwh, biogenic_outside_scopes=biogenic_reported / mwh, mwh_per_t=mwh)
 
 
+# ----------------------------------------------------------------------------
+# The captured tonne as a product: value per MWh of electricity by fate.
+# Prices are illustrative ranges with the source next to each; a real site uses its
+# offtake contract. Value and claim are separate: Rule A decides who holds the claim.
+# ----------------------------------------------------------------------------
+COPRODUCT = {
+    # fate: (low, high USD per t CO2 received by the plant; negative = plant pays), durable, source
+    "merchant":     (100.0, 250.0, False, "Merchant liquid CO2, food/industrial grade, Asian and US spot ranges; IEA 'Putting CO2 to Use' (2019) for market size"),
+    "efuel":        (50.0, 150.0, False, "Biogenic or point-source CO2 offered to e-fuel producers; developer term sheets 2024-26, illustrative"),
+    "mineralised":  (0.0, 60.0, True, "Carbonated aggregate and concrete curing: CO2 taken at or near zero; value comes from the durable-removal claim if biogenic (see below)"),
+    "stored":       (-50.0, -20.0, True, "Geological storage is a cost: transport and injection fee, US Gulf Coast and North Sea ranges"),
+}
+REMOVAL_CREDIT = (100.0, 300.0)   # USD per t, durable removal (mineralisation) with biogenic carbon; 2025 CDR offtake ranges, illustrative
+
+
+def coproduct_value(plant: Plant, fs: Feedstock):
+    """USD per MWh of electricity from selling the captured CO2 by fate, plus the separate
+    removal-credit value where the fate is durable and the carbon biogenic.
+        t_per_mwh = CO2_PER_T_MEOH_T * capture_rate / mwh_per_t_meoh
+        value_per_mwh = price_per_t * t_per_mwh
+    """
+    t_per_mwh = CO2_PER_T_MEOH_T * plant.capture_rate / plant.mwh_per_t_meoh
+    rows = []
+    for fate, (lo, hi, durable, src) in COPRODUCT.items():
+        credit = (REMOVAL_CREDIT[0] * t_per_mwh, REMOVAL_CREDIT[1] * t_per_mwh) if (durable and fs.biogenic) else (0.0, 0.0)
+        rows.append(dict(fate=fate, t_co2_per_mwh=t_per_mwh, product_usd_per_mwh=(lo * t_per_mwh, hi * t_per_mwh), removal_usd_per_mwh=credit,
+                         durable=durable, power_claim_if_sold=(not durable) or False, source=src))
+    return rows
+
+
 REFERENCE = {
     "Singapore grid, operating margin (EMA 2023 GEF, direct)": 417.0,   # EMA published grid emission factor, kgCO2/MWh
     "Gas CCGT, well-to-plug (illustrative)": 500.0,                       # ~370 direct + upstream gas at ~2 % methane loss
@@ -145,6 +175,12 @@ def main():
     os.makedirs("figures", exist_ok=True)
     with open("figures/feedstock_ci.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=rows[0].keys()); w.writeheader(); w.writerows(rows)
+    print("\nCaptured CO2 as a product, USD per MWh of electricity (illustrative price ranges):")
+    for fs in (FEEDSTOCKS[0], FEEDSTOCKS[1]):
+        print(f"  {fs.name}:  {CO2_PER_T_MEOH_T * plant.capture_rate / plant.mwh_per_t_meoh:.2f} t CO2 per MWh")
+        for r in coproduct_value(plant, fs):
+            lo, hi = r["product_usd_per_mwh"]; clo, chi = r["removal_usd_per_mwh"]
+            print(f"    {r['fate']:12} product {lo:6.0f} to {hi:5.0f} $/MWh   removal credit {clo:4.0f} to {chi:4.0f} $/MWh   durable={r['durable']}")
 
 
 if __name__ == "__main__":
