@@ -10,7 +10,7 @@ Working paper, code and a first pilot on the question behind the AI build-out: *
 
 ## Headline result of the pilot
 
-A solar PPA covering 100 % of a data centre's annual energy covers 42–48 % of its hours. The unmatched hours carry 55–65 % of the location-based emissions. Under today's Scope 2 standard that load reports zero; under the hourly-matching revision expected in 2027 it does not.
+A solar PPA covering 100 % of a data centre's annual energy covers 42–48 % of its hours. The unmatched hours carry 49–67 % of the location-based emissions, depending on what runs in the dark hours. Under today's Scope 2 standard that load reports zero; under the hourly-matching revision expected in 2027 it does not.
 
 ![Same load, same PPA, three accounting answers](figures/hourly_match.png)
 
@@ -25,8 +25,8 @@ A solar PPA covering 100 % of a data centre's annual energy covers 42–48 % of 
 
 ## Proposed research
 
-1. **Measure the residual** for announced AI capacity using published large-load queues (ERCOT, utilities, EEI project list), LBNL Queued Up on the generation side, and a dispatch-aware estimate of what serves the unmatched hours.
-2. **Compare the mechanisms** that try to make load internalise its cost: large-load tariffs (25 states), clean transition tariffs, hourly procurement mandates, developer-funded upgrades, price-effect pledges. Classify by who bears what; test against the measured residual.
+1. **Measure the residual** for announced AI capacity using published large-load queues (ERCOT, utilities, EEI project list), LBNL Queued Up on the generation side, and marginal-emissions data (WattTime, Electricity Maps, Cambium) for a first consequential estimate.
+2. **Compare the mechanisms** that try to make load internalise its cost: large-load tariffs (25 states), clean transition tariffs, hourly procurement mandates, flexibility tariffs, developer-funded upgrades, price-effect pledges. Classify by who bears what; test against the measured residual.
 3. **Specify the measurement layer** that would let a pledge be audited: what is metered, matched, retired and verified.
 
 Full framing in section 5 of the paper.
