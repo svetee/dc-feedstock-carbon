@@ -1,0 +1,9 @@
+feedstock,fate,claim_holder,electricity_kg_per_mwh,removal_kg_per_mwh,biogenic_outside_scopes
+Grey methanol (natural gas),merchant,power,708,0,0
+Grey methanol (natural gas),stored,power,251,0,0
+Grey methanol (natural gas),stored,CO2 buyer,708,0,0
+Grey methanol (natural gas),mineralised,power,251,0,0
+Bio-methanol (waste biomass),vented,power,105,0,481
+Bio-methanol (waste biomass),stored,power,105,457,24
+Bio-methanol (waste biomass),stored,CO2 buyer,105,0,481
+"E-methanol (renewable H2 + captured CO2, closed loop)",efuel,power,37,0,481
