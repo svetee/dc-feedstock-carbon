@@ -23,8 +23,8 @@ A solar PPA covering 100 % of a data centre's annual energy covers 42–48 % of 
 
 ## Proposed research
 
-1. **Measure the residual** for announced AI capacity using the LBNL interconnection-queue data and a dispatch-aware estimate of what serves the unmatched hours.
-2. **Compare the mechanisms** that try to make load internalise its cost: large-load tariffs (23 states), clean transition tariffs, hourly procurement mandates, developer-funded upgrades, price-effect pledges. Classify by who bears what; test against the measured residual.
+1. **Measure the residual** for announced AI capacity using published large-load queues (ERCOT, utilities, EEI project list), LBNL Queued Up on the generation side, and a dispatch-aware estimate of what serves the unmatched hours.
+2. **Compare the mechanisms** that try to make load internalise its cost: large-load tariffs (25 states), clean transition tariffs, hourly procurement mandates, developer-funded upgrades, price-effect pledges. Classify by who bears what; test against the measured residual.
 3. **Specify the measurement layer** that would let a pledge be audited: what is metered, matched, retired and verified.
 
 Full framing in section 5 of the paper.
