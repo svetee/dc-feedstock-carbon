@@ -66,7 +66,7 @@ Now follow the molecule across a border. In the Asian case the bio-methanol is m
 
 A US hyperscale portfolio has the same structure at larger scale. Its inputs are electricity (with certificates, soon hourly), fuel (gas, RNG, certified gas, hydrogen, each with its own registry and custody model), captured CO₂ (with its own registries), and water. Its claims are of four kinds: a ratepayer-protection claim, an electricity-carbon claim, a fuel-carbon claim and a water claim. Whether book-and-claim fuel attributes may enter Scope 1 and 3 at all is the subject of the GHG Protocol's separate Actions and Market Instruments work, which the Scope 2 consultation moved avoided-emissions and VPPA claims into [9].
 
-The infrastructure this needs is not complicated to describe. Each unit of input carries a serial, an emission or water factor, a custody model (mass balance or book-and-claim) and a claims flag, from the meter to the retired certificate. It is complicated to build, because the registries do not talk to each other and the standards are moving. But without it, every one of the pledges above is unauditable, and the net-zero policies of the infrastructure investors who own the platforms, which typically require a measured inventory and a Paris-aligned plan within two years of acquisition, cannot be met [16].
+The infrastructure this needs is not complicated to describe. Each unit of input carries a serial, an emission or water factor, a custody model (mass balance or book-and-claim) and a claims flag, from the meter to the retired certificate. `src/attribute_ledger.py` implements the rule in eighty lines: cancel on handover, reissue with the parent serial, one claim per serial, no removal claim without biogenic carbon and a durable fate, no electricity claim on a certificate from another hour or region. I wrote the design for a US hyperscale platform this year; the code here is the generic form. It is complicated to build, because the registries do not talk to each other and the standards are moving. But without it, every one of the pledges above is unauditable, and the net-zero policies of the infrastructure investors who own the platforms, which typically require a measured inventory and a Paris-aligned plan within two years of acquisition, cannot be met [16].
 
 ## 4. The pilot: reporting or emissions?
 
@@ -74,16 +74,14 @@ The most consequential of the moving standards is hourly matching, because it ch
 
 **Method.** EIA Form 930 gives hourly net generation by fuel for each US balancing authority [17]. I built an hourly grid carbon intensity from fuel shares and fleet-average combustion factors (coal 1,000, gas 400, petroleum 900 kgCO₂/MWh, from EIA's fleet-average emission rates [18]; zero for nuclear, hydro, wind, solar, storage at the point of generation). I placed a flat 100 MW load in six balancing authorities for July to December 2025 and gave it a solar PPA sized so that solar energy over the period equals load energy, using each region's own solar shape. Then I computed the load's emissions three ways: location-based (load times hourly grid factor), annual-matched market-based (zero, since certificates cover the year), and hourly-matched (unmatched hours at the grid factor). The code is `src/hourly_match.py`; nothing is fitted.
 
-**Result.**
-
-| Balancing authority | Avg grid CI, kg/MWh | Location-based, tCO₂ | Hourly-matched residual, tCO₂ | Share of load matched by the hour | Annual-matched |
-|---|---|---|---|---|---|
-| PJM | 348 | 152,800 | 88,900 | 43 % | 0 |
-| ERCOT | 303 | 132,400 | 82,100 | 44 % | 0 |
-| MISO | 443 | 194,500 | 114,500 | 43 % | 0 |
-| CAISO | 212 | 93,100 | 62,600 | 44 % | 0 |
-| SPP | 421 | 185,900 | 90,800 | 48 % | 0 |
-| Southern | 374 | 165,200 | 99,300 | 42 % | 0 |
+| Balancing authority | Avg grid CI, kg/MWh | Location-based, tCO₂ | Hourly-matched residual, tCO₂ | Share of load matched by the hour |
+|---|---|---|---|---|
+| PJM | 348 | 152,800 | 88,900 | 43 % |
+| ERCOT | 303 | 132,400 | 82,100 | 44 % |
+| MISO | 443 | 194,500 | 114,500 | 43 % |
+| CAISO | 212 | 93,100 | 62,600 | 44 % |
+| SPP | 421 | 185,900 | 90,800 | 48 % |
+| Southern | 374 | 165,200 | 99,300 | 42 % |
 
 ![Same load, same PPA, three accounting answers](../figures/hourly_match.png)
 

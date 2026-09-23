@@ -98,15 +98,18 @@ def main():
     os.makedirs("figures", exist_ok=True)
     out.to_csv("figures/hourly_match.csv", index=False)
     try:
-        import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+        import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt, matplotlib.ticker
+        plt.rcParams["font.family"] = "Helvetica"
         fig, ax = plt.subplots(figsize=(8, 4.2))
-        x = np.arange(len(out)); w = 0.27
-        ax.bar(x - w, out["location_t"], w, label="Location-based (what the grid emitted)", color="#475569")
-        ax.bar(x, out["hourly_matched_t"], w, label="Hourly-matched residual (proposed Scope 2)", color="#8C4220")
-        ax.bar(x + w, out["annual_matched_t"], w, label="Annual-matched (current market-based) = 0", color="#CBD5E1")
-        ax.set_xticks(x); ax.set_xticklabels(out["ba"]); ax.set_ylabel("tCO2, Jul-Dec 2025, 100 MW flat load")
-        ax.set_title("Same load, same solar PPA, three accounting answers", fontsize=11)
-        ax.legend(fontsize=8, frameon=False); ax.spines[["top", "right"]].set_visible(False)
+        x = np.arange(len(out)); w = 0.36
+        ax.bar(x - w/2, out["location_t"], w, label="Location-based (what the grid emitted)", color="#5A3A28")
+        ax.bar(x + w/2, out["hourly_matched_t"], w, label="Hourly-matched residual (proposed Scope 2); annual-matched = 0", color="#B5451B")
+        names = {"PJM": "PJM", "ERCO": "ERCOT", "MISO": "MISO", "CISO": "CAISO", "SWPP": "SPP", "SOCO": "Southern"}
+        ax.set_xticks(x); ax.set_xticklabels([names.get(b, b) for b in out["ba"]]); ax.set_ylabel("tCO$_2$, Jul–Dec 2025, 100 MW flat load", fontsize=9)
+        ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v/1000:.0f}k")); ax.tick_params(labelsize=9)
+        for sp in ("top", "right", "left"): ax.spines[sp].set_visible(False)
+        ax.grid(axis="y", color="#D9CDBD", linewidth=0.5); ax.set_axisbelow(True)
+        ax.legend(fontsize=8, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2)
         fig.tight_layout(); fig.savefig("figures/hourly_match.png", dpi=160)
         print("wrote figures/hourly_match.png")
     except ImportError:

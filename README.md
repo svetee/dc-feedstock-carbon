@@ -4,6 +4,7 @@ Working paper, code and a first pilot on the question behind the AI build-out: *
 
 - **Paper:** [`article/low-carbon-feedstock-for-data-centres.md`](article/low-carbon-feedstock-for-data-centres.md)
 - **Site-level model:** [`src/feedstock_ci.py`](src/feedstock_ci.py). Carbon intensity of electricity from a methanol-to-power unit with CO₂ capture as a function of feedstock origin, CO₂ fate and claim ownership. Implements four accounting rules (claim exclusivity, fate follows the tonne, biogenic reported separately, measure the capture rate). Stoichiometry plus stated, sourced inputs; nothing proprietary.
+- **Attribute ledger:** [`src/attribute_ledger.py`](src/attribute_ledger.py). The portfolio-level custody model from section 3 of the paper: one record from meter to claim (serial, factor, origin, custody model, fate, claim), the cancel-and-reissue rule at every handover, four claim types, and rejection of double claims, unsupported removal claims and off-hour certificates. Worked chain: bio-methanol certified in one country, converted to power in another, retired as an hourly-matched electricity claim.
 - **Grid pilot:** [`src/hourly_match.py`](src/hourly_match.py). A flat 100 MW load in six US balancing authorities, July–December 2025, with a solar PPA sized to 100 % of annual energy. Emissions under location-based, annual-matched and hourly-matched accounting from EIA-930 hourly data.
 
 ## Headline result of the pilot
@@ -37,6 +38,7 @@ pip install -r requirements.txt
 curl -L -o data/EIA930_BALANCE_2025_Jul_Dec.csv \
   https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_2025_Jul_Dec.csv
 python src/feedstock_ci.py     # site-level table -> figures/feedstock_ci.csv
+python src/attribute_ledger.py # custody chain demo, prints the audit trail and three rejections
 python src/hourly_match.py     # grid pilot -> figures/hourly_match.csv, .png
 ```
 
