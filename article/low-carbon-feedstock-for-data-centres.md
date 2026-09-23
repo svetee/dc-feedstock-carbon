@@ -36,6 +36,8 @@ The electricity's carbon intensity, in kilograms of CO₂e per MWh from well to 
 - **Fate of the captured CO₂.** Only durable fates keep the tonne out of the air: geological storage, mineralisation into concrete. Sale to a beverage bottler, sale as e-fuel feedstock, or venting all return the carbon within months. In accounting terms those three are the same as not capturing.
 - **Who holds the claim.** A captured tonne can be claimed once. If the CO₂ buyer takes the claim (as a removal credit, say), the electricity is accounted as if the CO₂ had been released.
 
+![Carbon flow per tonne of methanol under two CO₂ fates](../figures/fig_plant_sankey.png)
+
 The accounting boundary is the product carbon footprint under ISO 14067 [12]; the buyer's figure is its market-based Scope 2 under the GHG Protocol Scope 2 Guidance [13]; biogenic CO₂ is reported outside the scopes under Appendix B of the Corporate Standard [14]. Four rules follow, and I have found each of them contested in practice:
 
 | Rule | Statement | Where it is usually broken |
@@ -44,8 +46,6 @@ The accounting boundary is the product carbon footprint under ISO 14067 [12]; th
 | B. Fate follows the tonne | Credit only for durable fates | Merchant CO₂ sales counted as abatement |
 | C. Biogenic separate | Biogenic CO₂ reported outside the scopes; a removal is a separate product, never netted into the buyer's Scope 2 | "Negative" electricity figures offered to the buyer |
 | D. Measure, do not assume | Capture rate and parasitics are measured inputs | 100 % capture in the model; engineering reviews expect 95–99 % |
-
-![Carbon flow per tonne of methanol under two CO₂ fates](../figures/fig_plant_sankey.png)
 
 `src/feedstock_ci.py` implements these rules on stoichiometry (1.374 t CO₂ per t methanol on full oxidation), a stated conversion efficiency, capture rate and parasitic share, with each fuel factor sourced and marked illustrative. The output for one plant configuration:
 
