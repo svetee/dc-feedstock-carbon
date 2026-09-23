@@ -62,10 +62,14 @@ ACTION = {1: "Load is arriving before generation, and the rules on who pays are 
           3: "Across a portfolio, carbon accounting is a chain-of-custody problem",
           4: "A clean-power contract that covers the year covers fewer than half the hours",
           5: "Proposed research: measure the residual, compare the mechanisms, specify the audit layer"}
-EXHIBITS = [("Every rule for captured CO₂ is broken somewhere in practice", "Author's analysis of advisory engagements, 2024–26", "Four accounting rules, and where each fails"),
+EXHIBITS = [("Storing the captured tonne and keeping the claim is the only route to a low figure", "src/figures.py; per tonne of fossil methanol, kgCO₂e; 95 % capture; fuel factor IRENA (2021), illustrative", "Carbon flow per tonne of methanol under two CO₂ fates"),
+            ("Every rule for captured CO₂ is broken somewhere in practice", "Author's analysis of advisory engagements, 2024–26", "Four accounting rules, and where each fails"),
             ("The same plant reports 251 or 708 kgCO₂e/MWh depending on CO₂ fate and claim holder", "src/feedstock_ci.py. Note: stoichiometry 1.374 t CO₂ per t methanol; 55 % LHV efficiency, 95 % capture, 6 % parasitic; fuel factors IRENA (2021), illustrative", "Electricity carbon intensity by feedstock, CO₂ fate and claim holder, kgCO₂e per MWh, well to plug"),
+            ("Chains break at the first handover, where a proof is kept and sold twice", "src/attribute_ledger.py worked chain; serials as printed by the audit trail", "Custody chain from producer to retired claim, and the failure the ledger rejects"),
+            ("One record serves four claims, and the rules it must satisfy arrive before the sites do", "Author's design for a US hyperscale platform, 2026; rule dates from refs. 4, 6, 9, 10", "The portfolio ledger, and the rule timeline 2025–2028"),
             ("A solar PPA covering the year leaves 55–65 % of location-based emissions unmatched by the hour", "EIA Form 930 hourly net generation by fuel; EIA fleet-average emission rates; src/hourly_match.py. Annual-matched = 0 in every region", "100 MW flat load, six US balancing authorities, July–December 2025, tCO₂"),
-            ("Three accounting answers for one physical load", "src/hourly_match.py on EIA Form 930; solar PPA sized to 100 % of period energy on each BA's own solar shape", "tCO₂, July–December 2025, 100 MW flat load")]
+            ("Three accounting answers for one physical load", "src/hourly_match.py on EIA Form 930; solar PPA sized to 100 % of period energy on each BA's own solar shape", "tCO₂, July–December 2025, 100 MW flat load"),
+            ("In PJM the unmatched hours are served by gas and coal, 86 kt CO₂ in six months", "src/figures.py on EIA Form 930, PJM, July–December 2025; fuel shares of the unmatched hours", "Where a 100 MW load's energy goes under hourly matching")]
 KEY = ["The same on-site power plant reports 251 or 708 kgCO₂e/MWh depending on one clause in the CO₂ offtake contract.",
        "A solar PPA covering 100 % of a data centre's annual energy matches 42–48 % of its hours; the rest carries 55–65 % of the location-based emissions.",
        "25 US states have large-load tariffs and FERC has opened proceedings against all six RTOs, yet no developer pledge names a method, a data source or an auditor.",

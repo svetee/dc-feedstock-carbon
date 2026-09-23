@@ -45,6 +45,8 @@ The accounting boundary is the product carbon footprint under ISO 14067 [12]; th
 | C. Biogenic separate | Biogenic CO₂ reported outside the scopes; a removal is a separate product, never netted into the buyer's Scope 2 | "Negative" electricity figures offered to the buyer |
 | D. Measure, do not assume | Capture rate and parasitics are measured inputs | 100 % capture in the model; engineering reviews expect 95–99 % |
 
+![Carbon flow per tonne of methanol under two CO₂ fates](../figures/fig_plant_sankey.png)
+
 `src/feedstock_ci.py` implements these rules on stoichiometry (1.374 t CO₂ per t methanol on full oxidation), a stated conversion efficiency, capture rate and parasitic share, with each fuel factor sourced and marked illustrative. The output for one plant configuration:
 
 | Feedstock | CO₂ fate | Claim held by | Electricity, kgCO₂e/MWh | Removal, separate | 
@@ -62,11 +64,24 @@ The same logic applies to every low-carbon feedstock now being offered to data c
 
 ## 3. Across the portfolio: custody
 
+![Custody chain from producer to retired claim, and where it breaks](../figures/fig_custody_flow.png)
+
 Now follow the molecule across a border. In the Asian case the bio-methanol is made from waste biomass in one country, shipped to another, converted to power, and the renewable attribute is turned into a certificate the data-centre buyer retires. There are at least two readings of that chain, with two or three handovers each, and the rule at every handover is the same: cancel the incoming certificate, issue the outgoing one with the incoming serial on it. The place chains break is the first handover, where a producer keeps the sustainability proof and sells it to a second buyer while the same molecule is certified again downstream.
 
 A US hyperscale portfolio has the same structure at larger scale. Its inputs are electricity (with certificates, soon hourly), fuel (gas, RNG, certified gas, hydrogen, each with its own registry and custody model), captured CO₂ (with its own registries), and water. Its claims are of four kinds: a ratepayer-protection claim, an electricity-carbon claim, a fuel-carbon claim and a water claim. Whether book-and-claim fuel attributes may enter Scope 1 and 3 at all is the subject of the GHG Protocol's separate Actions and Market Instruments work, which the Scope 2 consultation moved avoided-emissions and VPPA claims into [9].
 
-The infrastructure this needs is not complicated to describe. Each unit of input carries a serial, an emission or water factor, a custody model (mass balance or book-and-claim) and a claims flag, from the meter to the retired certificate. `src/attribute_ledger.py` implements the rule in eighty lines: cancel on handover, reissue with the parent serial, one claim per serial, no removal claim without biogenic carbon and a durable fate, no electricity claim on a certificate from another hour or region. I wrote the design for a US hyperscale platform this year; the code here is the generic form. It is complicated to build, because the registries do not talk to each other and the standards are moving. But without it, every one of the pledges above is unauditable, and the net-zero policies of the infrastructure investors who own the platforms, which typically require a measured inventory and a Paris-aligned plan within two years of acquisition, cannot be met [16].
+The infrastructure this needs is not complicated to describe. Each unit of input carries a serial, an emission or water factor, a custody model (mass balance or book-and-claim) and a claims flag, from the meter to the retired certificate. `src/attribute_ledger.py` implements the rule in eighty lines: cancel on handover, reissue with the parent serial, one claim per serial, no removal claim without biogenic carbon and a durable fate, no electricity claim on a certificate from another hour or region. I wrote the design for a US hyperscale platform this year; the code here is the generic form.
+
+### What a portfolio ledger has to carry
+
+The design was built against a specific situation: a newly formed platform with an anchor tenant, institutional owners with net-zero mandates, sites still to be chosen, and a public pledge on ratepayer cost with no method behind it. Four things followed from that situation, and they generalise.
+
+- **Four claims, one record.** The ratepayer claim (upgrade costs and price effects), the electricity-carbon claim (Scope 2, soon hourly and deliverable), the fuel-carbon claim (Scope 1 and 3, pending the AMI rule on book-and-claim) and the water claim (state reporting) all draw on the same metered inputs. A separate spreadsheet per claim is how double counting starts.
+- **The record outlives the hardware.** A data centre replaces its GPUs generation by generation; the asset that persists is the record. Embodied carbon and asset accounting belong on the same serial as the operating attributes.
+- **The rules move faster than the build.** Exhibit 5 shows the sequence: Scope 2 consultation, FERC and state tariffs, Dominion GS-5 and Virginia water reporting in 2027, Scope 2 final, the AMI draft and final, the owners' inventory deadlines. A site financed in 2026 will report under rules that are not yet written for most of its life, so the record has to carry the raw hourly data, not a factor computed under today's rule.
+- **Scenario before site.** Before a site is chosen, the same record can be run forward: region, PUE, supply mix, fuel custody model and water source in, the four claims out. That is a decision tool for the owner, and it is the same code that later audits the operating site.
+
+![The portfolio ledger and the rule timeline](../figures/fig_ledger_rules.png) It is complicated to build, because the registries do not talk to each other and the standards are moving. But without it, every one of the pledges above is unauditable, and the net-zero policies of the infrastructure investors who own the platforms, which typically require a measured inventory and a Paris-aligned plan within two years of acquisition, cannot be met [16].
 
 ## 4. The pilot: reporting or emissions?
 
@@ -84,6 +99,8 @@ The most consequential of the moving standards is hourly matching, because it ch
 | Southern | 374 | 165,200 | 99,300 | 42 % |
 
 ![Same load, same PPA, three accounting answers](../figures/hourly_match.png)
+
+![Where the unmatched hours go: PJM](../figures/fig_match_sankey.png)
 
 A solar PPA that covers 100 % of annual energy covers 42 to 48 % of the hours. The residual, 55 to 65 % of the location-based figure, is what the current standard lets a buyer leave unreported and the proposed standard does not. In MISO that is 114,000 tCO₂ over six months for a single 100 MW site.
 
